@@ -1,5 +1,9 @@
 package com.laptrinhjavaweb.service;
 
-public interface IUserService {
+import java.util.List;
 
+import com.laptrinhjavaweb.dto.UserDTO;
+
+public interface IUserService {
+	List<UserDTO> findStaffs(String roleCode);
 }

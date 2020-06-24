@@ -4,16 +4,21 @@ public class ProductSearchBuilder {
 	private String name;
 	private String color;
 	private String code;
-	private Integer cost;
-	private String feature;
-
+	private String costFrom;
+	private String costTo;
+	private String[] features = new String[] {};
+	private String brand;
+	private Long storeID;
+	
 	private ProductSearchBuilder(Builder builder) {
 		this.name = builder.name;
 		this.color = builder.color;
 		this.code = builder.code;
-		this.cost = builder.cost;
-		this.feature = builder.feature;
-		
+		this.costFrom = builder.costFrom;
+		this.costTo = builder.costTo;
+		this.features = builder.features;
+		this.brand = builder.brand;
+		this.storeID = builder.storeID;
 	}
 	public String getName() {
 		return name;
@@ -27,21 +32,32 @@ public class ProductSearchBuilder {
 		return code;
 	}
 
-	public Integer getCost() {
-		return cost;
+	public String getCostFrom() {
+		return costFrom;
 	}
-
-	public String getFeature() {
-		return feature;
+	public String getCostTo() {
+		return costTo;
+	}
+	
+	public String[] getFeatures() {
+		return features;
+	}
+	public String getBrand() {
+		return brand;
+	}
+	public Long getStoreID() {
+		return storeID;
 	}
 
 	public static class Builder{
 		private String name;
 		private String color;
 		private String code;
-		private Integer cost;
-		private String feature;
-		
+		private String costFrom;
+		private String costTo;
+		private String[] features = new String[] {};		
+		private String brand;
+		private Long storeID;
 		public Builder setName(String name) {
 			this.name = name;
 			return this;
@@ -54,15 +70,27 @@ public class ProductSearchBuilder {
 			this.code = code;
 			return this;
 		}
-		public Builder setCost(Integer cost) {
-			this.cost = cost;
+		public Builder setCostFrom(String costFrom) {
+			this.costFrom = costFrom;
 			return this;
 		}
-		public Builder setFeature(String feature) {
-			this.feature = feature;
+		public Builder setCostTo(String costTo) {
+			this.costTo = costTo;
 			return this;
 		}
-		
+		public Builder setFeatures(String[] features) {
+			this.features = features;
+			return this;
+		}
+
+		public Builder setBrand(String brand) {
+			this.brand = brand;
+			return this;
+		}
+		public Builder setStoreID(Long storeID) {
+			this.storeID = storeID;
+			return this;
+		}
 		public ProductSearchBuilder build() {
 			return new ProductSearchBuilder(this);
 		}

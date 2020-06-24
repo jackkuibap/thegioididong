@@ -16,18 +16,17 @@ import com.laptrinhjavaweb.annotation.Entity;
 
 public class ResultSetMapper<T> {
 	
-	@SuppressWarnings("unchecked")
 	public List<T> mapRow(ResultSet rs, Class<T> zClass) {
 		List<T> results = new ArrayList<>();
 		try {
 			if (zClass.isAnnotationPresent(Entity.class)) {
 				ResultSetMetaData resultSetMetaData = rs.getMetaData();
-			//	Field[] fields = zClass.getDeclaredFields();
+				Field[] fields = zClass.getDeclaredFields();
 			//	Field[] fields = zClass.getSuperclass().getDeclaredFields();
-				List<Field> fields = new ArrayList<Field>();
-		        for (Class<T> c = zClass; c != null; c = (Class<T>) c.getSuperclass()) {
-		            fields.addAll(Arrays.asList(c.getDeclaredFields()));
-		        }
+			//	List<Field> fields = new ArrayList<Field>();
+		     //   for (Class<T> c = zClass; c != null; c = (Class<T>) c.getSuperclass()) {
+		      //      fields.addAll(Arrays.asList(c.getDeclaredFields()));
+		     //   }
 
 				while (rs.next()) {
 					T object = zClass.newInstance();  // dinh nghia lai  
@@ -37,13 +36,26 @@ public class ResultSetMapper<T> {
 						for (Field field : fields) {
 							if (field.isAnnotationPresent(Column.class)) {
 								Column column = field.getAnnotation(Column.class);
-								if (column.name().equals(columnName)) {
-									if (columnValue != null)
+								if (column.name().equals(columnName) && columnValue != null) {
 									 BeanUtils.setProperty(object, field.getName(), columnValue);
 									 break;
 								}
 							}
 						}
+						Class<?> parentClass = zClass.getSuperclass();
+						while (parentClass != null) {
+							for (Field field : parentClass.getDeclaredFields()) {
+								if (field.isAnnotationPresent(Column.class)) {
+									Column column = field.getAnnotation(Column.class);
+									if (column.name().equals(columnName) && columnValue != null) {
+										 BeanUtils.setProperty(object, field.getName(), columnValue);
+										 break;
+									}
+								}
+							}
+							parentClass = parentClass.getSuperclass();
+						}
+						
 					}	
 					results.add(object);
 				}

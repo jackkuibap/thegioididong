@@ -1,7 +1,6 @@
-package com.laptrinhjavaweb.dto;
+package com.laptrinhjavaweb.api.output;
 
-public class ProductCategoryDTO extends AbstractDTO{
-	
+public class ProductColorOutput {
 	private String name;
 	private String code;
 	
@@ -17,5 +16,5 @@ public class ProductCategoryDTO extends AbstractDTO{
 	public void setCode(String code) {
 		this.code = code;
 	}
-
+	
 }

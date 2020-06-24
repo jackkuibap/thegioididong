@@ -15,7 +15,7 @@ public class OrderDetailDTO extends AbstractDTO{
 	private String street;
 	private String address;
 	private String phoneNumber;
-	private Timestamp receiveTime;
+	private Timestamp receiveTime; //String
 	private String invoice;
 	private Boolean dataTranfer;
 	private String payment;

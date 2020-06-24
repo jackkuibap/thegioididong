@@ -5,13 +5,11 @@ public class ProductOutput {
 	private String name;
 	private String color;
 	private String code;
-	private Integer cost;
-	private String feature;
-	private String description1;
-	private String description2;
-	private String content;
-	private String specification;
-	
+	private String costFrom;
+	private String costTo;
+	private String[] features = new String[] {};
+	private String brand;
+	private Long storeID;
 	public String getName() {
 		return name;
 	}
@@ -30,41 +28,35 @@ public class ProductOutput {
 	public void setCode(String code) {
 		this.code = code;
 	}
-	public Integer getCost() {
-		return cost;
+	public String getCostFrom() {
+		return costFrom;
 	}
-	public void setCost(Integer cost) {
-		this.cost = cost;
+	public void setCostFrom(String costFrom) {
+		this.costFrom = costFrom;
 	}
-	public String getFeature() {
-		return feature;
+	public String getCostTo() {
+		return costTo;
 	}
-	public void setFeature(String feature) {
-		this.feature = feature;
+	public void setCostTo(String costTo) {
+		this.costTo = costTo;
 	}
-	public String getDescription1() {
-		return description1;
+	public String[] getFeatures() {
+		return features;
 	}
-	public void setDescription1(String description1) {
-		this.description1 = description1;
+	public void setFeatures(String[] features) {
+		this.features = features;
 	}
-	public String getDescription2() {
-		return description2;
+	public String getBrand() {
+		return brand;
 	}
-	public void setDescription2(String description2) {
-		this.description2 = description2;
+	public void setBrand(String brand) {
+		this.brand = brand;
 	}
-	public String getContent() {
-		return content;
+	public Long getStoreID() {
+		return storeID;
 	}
-	public void setContent(String content) {
-		this.content = content;
+	public void setStoreID(Long storeID) {
+		this.storeID = storeID;
 	}
-	public String getSpecification() {
-		return specification;
-	}
-	public void setSpecification(String specification) {
-		this.specification = specification;
-	}
-
+	
 }

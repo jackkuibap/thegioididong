@@ -7,11 +7,13 @@ public class ProductDTO extends AbstractDTO{
 	private String code;
 	private Integer cost;
 	private String feature;
+	private Long productCategoryID;
 	private String description1;
 	private String description2;
 	private String content;
 	private String specification;
-
+	private String[] features = new String[] {};
+	
 	public String getName() {
 		return name;
 	}
@@ -52,6 +54,14 @@ public class ProductDTO extends AbstractDTO{
 		this.feature = feature;
 	}
 
+	public Long getProductCategoryID() {
+		return productCategoryID;
+	}
+
+	public void setProductCategoryID(Long productCategoryID) {
+		this.productCategoryID = productCategoryID;
+	}
+
 	public String getDescription1() {
 		return description1;
 	}
@@ -83,4 +93,13 @@ public class ProductDTO extends AbstractDTO{
 	public void setSpecification(String specification) {
 		this.specification = specification;
 	}
+
+	public String[] getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(String[] features) {
+		this.features = features;
+	}
+	
 }

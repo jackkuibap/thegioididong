@@ -1,12 +1,12 @@
 package com.laptrinhjavaweb.dto;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class AbstractDTO {
 	
 	private Long id;
-	private Timestamp createDate;
-	private Timestamp modifiedDate;
+	private Date createDate;
+	private Date modifiedDate;
 	private String createdBy;
 	private String modifiedBy;
 	
@@ -16,16 +16,16 @@ public class AbstractDTO {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Timestamp getCreateDate() {
+	public Date getCreateDate() {
 		return createDate;
 	}
-	public void setCreateDate(Timestamp createDate) {
+	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
-	public Timestamp getModifiedDate() {
+	public Date getModifiedDate() {
 		return modifiedDate;
 	}
-	public void setModifiedDate(Timestamp modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 	public String getCreatedBy() {

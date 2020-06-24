@@ -1,21 +1,20 @@
 package com.laptrinhjavaweb.entity;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import com.laptrinhjavaweb.annotation.Column;
 import com.laptrinhjavaweb.annotation.Entity;
 
-@Entity
 public class AbstractEntity {
 	
 	@Column(name = "ID")
 	private Long id;
 	
 	@Column(name = "CreateDate")
-	private Timestamp createDate;
+	private Date createDate;
 	
 	@Column(name = "ModifiedDate")
-	private Timestamp modifiedDate;
+	private Date modifiedDate;
 	
 	@Column(name = "CreateBy")
 	private String createdBy;
@@ -29,16 +28,16 @@ public class AbstractEntity {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Timestamp getCreateDate() {
+	public Date getCreateDate() {
 		return createDate;
 	}
-	public void setCreateDate(Timestamp createDate) {
+	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
-	public Timestamp getModifiedDate() {
+	public Date getModifiedDate() {
 		return modifiedDate;
 	}
-	public void setModifiedDate(Timestamp modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 	public String getCreatedBy() {

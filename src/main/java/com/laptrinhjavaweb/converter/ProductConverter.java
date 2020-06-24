@@ -1,10 +1,12 @@
 package com.laptrinhjavaweb.converter;
 
+import org.modelmapper.ModelMapper;
+
 import com.laptrinhjavaweb.dto.ProductDTO;
 import com.laptrinhjavaweb.entity.ProductEntity;
 
 public class ProductConverter extends AbstractConverter<ProductDTO, ProductEntity> {
-/*	
+	
 	private ModelMapper modelMapper = new ModelMapper(); 
 	
 	public ProductDTO convertEntityToDto(ProductEntity entity) {
@@ -15,5 +17,5 @@ public class ProductConverter extends AbstractConverter<ProductDTO, ProductEntit
 	public ProductEntity convertDtoToEntity(ProductDTO dto) {
 		ProductEntity productEntity = modelMapper.map(dto, ProductEntity.class);
 		return productEntity;
-	}*/
+	}
 }

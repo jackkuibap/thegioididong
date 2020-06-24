@@ -16,18 +16,19 @@ public class AbstractService <D,E> implements GenericService<D, E> {
 		zClass = (Class<T>) parameterizedType.getActualTypeArguments()[0];
 		return zClass;
 	}*/
-	private SimpleJpaRepository<E> repository = new SimpleJpaRepository<>();
-	private AbstractConverter<D, E> converter = new AbstractConverter<>();
+//	private SimpleJpaRepository<E> repository = new SimpleJpaRepository<>();
+//	private AbstractConverter<D, E> converter = new AbstractConverter<>();
 	
 	public List<D> findAll(){
-		//java 7
+		/*//java 7
 		List<D> dtos = new ArrayList<>();
 		List<E> entities = repository.findAll();
 		for (E entity: entities) {
 			D dto = converter.convertEntityToDto(entity);
 			dtos.add(dto);
 		}
-		return dtos;
+		return dtos;*/
+		return null;
 	}
 	
 }

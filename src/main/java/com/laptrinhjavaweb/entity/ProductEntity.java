@@ -22,6 +22,9 @@ public class ProductEntity extends AbstractEntity {
 	
 	@Column(name = "Feature")
 	private String feature;
+
+	@Column(name = "ProductCategoryID")
+	private Long productCategoryID;
 	
 	@Column(name = "Description1")
 	private String description1;
@@ -73,6 +76,14 @@ public class ProductEntity extends AbstractEntity {
 
 	public void setFeature(String feature) {
 		this.feature = feature;
+	}
+
+	public Long getProductCategoryID() {
+		return productCategoryID;
+	}
+
+	public void setProductCategoryID(Long productCategoryID) {
+		this.productCategoryID = productCategoryID;
 	}
 
 	public String getDescription1() {

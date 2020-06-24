@@ -1,10 +1,16 @@
-package com.laptrinhjavaweb.dto;
+package com.laptrinhjavaweb.api.output;
 
-public class ProductCategoryDTO extends AbstractDTO{
-	
+public class ProductCategoryOutput {
 	private String name;
 	private String code;
+	private String checked;
 	
+	public String getChecked() {
+		return checked;
+	}
+	public void setChecked(String checked) {
+		this.checked = checked;
+	}
 	public String getName() {
 		return name;
 	}
@@ -17,5 +23,5 @@ public class ProductCategoryDTO extends AbstractDTO{
 	public void setCode(String code) {
 		this.code = code;
 	}
-
+	
 }

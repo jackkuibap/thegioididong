@@ -8,7 +8,8 @@ public class EntityManagerFactory {
 	
 	public static Connection getConnection() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			//Class.forName("com.mysql.jdbc.Driver"); //old
+			Class.forName("com.mysql.cj.jdbc.Driver"); //new
 			String url = "jdbc:mysql://localhost:3306/thegioididong?serverTimezone=UTC";
 			String user = "root";
 			String password = "1234";

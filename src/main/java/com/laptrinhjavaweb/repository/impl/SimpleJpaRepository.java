@@ -7,14 +7,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.laptrinhjavaweb.annotation.Column;
 import com.laptrinhjavaweb.annotation.Table;
 import com.laptrinhjavaweb.mapper.ResultSetMapper;
 import com.laptrinhjavaweb.repository.EntityManagerFactory;
 import com.laptrinhjavaweb.repository.JpaRepository;
+import com.mysql.cj.protocol.Resultset;
 
 public class SimpleJpaRepository<T> implements JpaRepository<T> {
 	
@@ -27,7 +32,8 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 		zClass = (Class<T>) parameterizedType.getActualTypeArguments()[0];
 	}
 	
-	public List<T> findAll(){
+	
+/*	public List<T> findAll(){
 		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
 		
 		Connection conn = EntityManagerFactory.getConnection();
@@ -48,41 +54,6 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 				
 				
 				return resultSetMapper.mapRow(rs, this.zClass);
-				
-/*				
-				Type genericSuperclass = getClass().getGenericSuperclass();
-				ParameterizedType type = (ParameterizedType) genericSuperclass;
-				Type[] typeArguments = type.getActualTypeArguments();
-				Class<T> zClass = (Class<T>) typeArguments[0];		
-				
-				if (zClass.isAnnotationPresent(Table.class)) {
-					Table table = zClass.getAnnotation(Table.class);
-					tableName = table.name();
-				}
-				
-				String sql = "select * from " + tableName + "";
-				stmt = conn.createStatement();
-				rs = stmt.executeQuery(sql);			
-				ResultSetMetaData resultSetMetaData = rs.getMetaData();
-				Field[] fields = zClass.getDeclaredFields();
-				while (rs.next()) {
-					T object = zClass.newInstance();  	//khoi tao
-					for (int i = 0; i < resultSetMetaData.getColumnCount(); i++) {
-						String columnName = resultSetMetaData.getColumnName(i + 1);
-						Object columnValue = rs.getObject(i + 1);
-						for (Field field: fields) {
-							if (field.isAnnotationPresent(Column.class)) {
-								Column column = field.getAnnotation(Column.class);
-								if (columnName.equals(column.name())) {
-									BeanUtils.setProperty(object, field.getName(), columnValue);		// set thuoc tinh
-									break;
-								}
-							}
-						}
-					}
-					results.add(object);    //add
-	
-				}*/
 				
 			} catch (SQLException se) {
 				// Handle errors for JDBC
@@ -105,7 +76,7 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 		return new ArrayList<>();
 
 	}
-
+*/
 	@Override
 	public void insert(String sql, Object... objects) {
 		Connection connection = null;
@@ -158,14 +129,15 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 	}
 
 	@Override
-	public void insert(Object object) {
+	public Long insert(Object object) {
 		String sql = createSQLInsert();
 		Connection connection = null;
 		PreparedStatement statement = null;
+		ResultSet resultSet = null;
 		try {
 			connection = EntityManagerFactory.getConnection();
 			connection.setAutoCommit(false); //tu dong commit du bi fail di nua -> khong cho phep
-			statement = connection.prepareStatement(sql);
+			statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			//convert object -> object class
 			Class<?> aClass = object.getClass(); // dau ? co nghia la khong biet object class la gi ca, ban than object cung ko biet la gi
 			int index = 1;
@@ -181,18 +153,38 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 				}*/
 				
 			}
-			statement.executeUpdate();
+			
+			Class<?> parentClass = aClass.getSuperclass();
+			int indexParent = aClass.getDeclaredFields().length + 1;
+			while (parentClass != null) {
+				for (Field aField: parentClass.getDeclaredFields()) {
+					aField.setAccessible(true);// muon truy cap aField phai bat co cho phep
+					statement.setObject(indexParent, aField.get(object)); //cach moi doi voi kieu string thi set kieu du lieu string
+					indexParent++;		
+				}
+				parentClass = parentClass.getSuperclass();
+			}
+			
+			int result = statement.executeUpdate();
+			resultSet = statement.getGeneratedKeys();
 			//statement = connection.createStatement();
 			//statement.executeUpdate(sql);
 			connection.commit();
+			if (result > 0) {
+				while (resultSet.next()) {
+					Long id = resultSet.getLong(1);
+					return id;
+				}
+			}
 
 		} catch (SQLException | IllegalAccessException e) {
 			if (connection != null) {
 				try {
 					connection.rollback();
+					System.out.println("e.getMessage()"+e.getMessage());
 				} catch (SQLException e1) {
 					//e1.printStackTrace();
-					System.out.println(e1.getMessage());
+					System.out.println("e1.getMessage()"+e1.getMessage());
 				}
 			}
 		} finally {
@@ -203,12 +195,16 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 				if (statement != null) {
 					statement.close();
 				}
+				if (resultSet != null) {
+					resultSet.close();
+				}
 
 			} catch (SQLException e2) {
 				//e2.printStackTrace();
-				System.out.println(e2.getMessage());
+				System.out.println("e2.getMessage()"+e2.getMessage());
 			}
 		}
+		return -1L;
 	}
 
 	public void update(Object object) {
@@ -234,6 +230,7 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 				}*/
 				
 			}
+			
 			statement.executeUpdate();
 			//statement = connection.createStatement();
 			//statement.executeUpdate(sql);
@@ -284,6 +281,21 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 				params.append("?");							
 			}
 		}
+		Class<?> parentClass = zClass.getSuperclass();
+		while (parentClass != null) {
+			for (Field field: parentClass.getDeclaredFields()) {
+				if (fields.length() > 1) {
+					fields.append(",");
+					params.append(",");
+				}
+				if (field.isAnnotationPresent(Column.class)) {
+					Column column = field.getAnnotation(Column.class);
+					fields.append(column.name());
+					params.append("?");							
+				}
+			}
+			parentClass = parentClass.getSuperclass();
+		}
 		String sql = "INSERT INTO "+tableName+"("+fields.toString()+") VALUES ("+params.toString()+")";
 		return sql;
 	}
@@ -315,58 +327,27 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
 		
 		Connection conn = EntityManagerFactory.getConnection();
-		PreparedStatement stmt = null;
+		Statement stmt = null;
 		ResultSet rs = null;
-		String tableName = "";
+//		String tableName = "";
 		if (conn != null) {
 			try {
-				if (zClass.isAnnotationPresent(Table.class)) {
-					Table table = zClass.getAnnotation(Table.class);
-					tableName = table.name();
+//				if (zClass.isAnnotationPresent(Table.class)) {
+//					Table table = zClass.getAnnotation(Table.class);
+//					tableName = table.name();
+//				}
+				
+	//			StringBuilder sql = new StringBuilder("select * from " + tableName + "");
+				StringBuilder builder = new StringBuilder(sql);
+				if (where != null && where.length == 1) {
+					builder.append(where[0]);
 				}
 				
-				//String sql = "select * from " + tableName + "";
-				stmt = conn.prepareStatement(sql);
-				rs = stmt.executeQuery();
-				
-				
+				//stmt = conn.prepareStatement(builder.toString());
+				stmt = conn.createStatement();
+				rs = stmt.executeQuery(builder.toString());
 				
 				return resultSetMapper.mapRow(rs, this.zClass);
-				
-/*				
-				Type genericSuperclass = getClass().getGenericSuperclass();
-				ParameterizedType type = (ParameterizedType) genericSuperclass;
-				Type[] typeArguments = type.getActualTypeArguments();
-				Class<T> zClass = (Class<T>) typeArguments[0];		
-				
-				if (zClass.isAnnotationPresent(Table.class)) {
-					Table table = zClass.getAnnotation(Table.class);
-					tableName = table.name();
-				}
-				
-				String sql = "select * from " + tableName + "";
-				stmt = conn.createStatement();
-				rs = stmt.executeQuery(sql);			
-				ResultSetMetaData resultSetMetaData = rs.getMetaData();
-				Field[] fields = zClass.getDeclaredFields();
-				while (rs.next()) {
-					T object = zClass.newInstance();  	//khoi tao
-					for (int i = 0; i < resultSetMetaData.getColumnCount(); i++) {
-						String columnName = resultSetMetaData.getColumnName(i + 1);
-						Object columnValue = rs.getObject(i + 1);
-						for (Field field: fields) {
-							if (field.isAnnotationPresent(Column.class)) {
-								Column column = field.getAnnotation(Column.class);
-								if (columnName.equals(column.name())) {
-									BeanUtils.setProperty(object, field.getName(), columnValue);		// set thuoc tinh
-									break;
-								}
-							}
-						}
-					}
-					results.add(object);    //add
-	
-				}*/
 				
 			} catch (SQLException se) {
 				// Handle errors for JDBC
@@ -390,7 +371,7 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 	}
 
 	@Override
-	public List<T> findAll(Object... where) {
+	public List<T> findAll(Map<String, Object> params, Object... where) {
 		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
 		
 		Connection conn = EntityManagerFactory.getConnection();
@@ -404,7 +385,8 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 					tableName = table.name();
 				}
 				
-				StringBuilder sql = new StringBuilder("select * from " + tableName + "");
+				StringBuilder sql = new StringBuilder("select * from "+tableName+" t where 1=1");
+				sql = createSQLfindAllCommon(sql, params);
 				if (where != null && where.length == 1) {
 					sql.append(where[0]);
 				}
@@ -413,41 +395,6 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 				rs = stmt.executeQuery();
 				
 				return resultSetMapper.mapRow(rs, this.zClass);
-				
-/*				
-				Type genericSuperclass = getClass().getGenericSuperclass();
-				ParameterizedType type = (ParameterizedType) genericSuperclass;
-				Type[] typeArguments = type.getActualTypeArguments();
-				Class<T> zClass = (Class<T>) typeArguments[0];		
-				
-				if (zClass.isAnnotationPresent(Table.class)) {
-					Table table = zClass.getAnnotation(Table.class);
-					tableName = table.name();
-				}
-				
-				String sql = "select * from " + tableName + "";
-				stmt = conn.createStatement();
-				rs = stmt.executeQuery(sql);			
-				ResultSetMetaData resultSetMetaData = rs.getMetaData();
-				Field[] fields = zClass.getDeclaredFields();
-				while (rs.next()) {
-					T object = zClass.newInstance();  	//khoi tao
-					for (int i = 0; i < resultSetMetaData.getColumnCount(); i++) {
-						String columnName = resultSetMetaData.getColumnName(i + 1);
-						Object columnValue = rs.getObject(i + 1);
-						for (Field field: fields) {
-							if (field.isAnnotationPresent(Column.class)) {
-								Column column = field.getAnnotation(Column.class);
-								if (columnName.equals(column.name())) {
-									BeanUtils.setProperty(object, field.getName(), columnValue);		// set thuoc tinh
-									break;
-								}
-							}
-						}
-					}
-					results.add(object);    //add
-	
-				}*/
 				
 			} catch (SQLException se) {
 				// Handle errors for JDBC
@@ -468,6 +415,34 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 			} 
 		}
 		return new ArrayList<>();
+	}
+
+	protected StringBuilder createSQLfindAllCommon(StringBuilder sql, Map<String, Object> params) {
+
+		if (params != null && params.size() > 0) {
+			String[] keys = new String[params.size()];
+			Object[] values = new Object[params.size()];
+			int i = 0;
+			for (Map.Entry<String, Object> item: params.entrySet()) {
+				keys[i] = item.getKey();
+				values[i] = item.getValue();
+				i++;
+			}
+			
+			for (int j = 0; j < keys.length; j++) {
+				if (values[j] instanceof String) {
+					if (StringUtils.isNotBlank(values[j].toString())) {
+						sql.append(" AND t."+keys[j]+" like '%"+values[j]+"%'");
+					}
+				} else {
+					if (values[j] != null) {
+						sql.append(" AND t."+keys[j]+" = "+values[j]+"");
+					}
+				}
+			}
+		}
+		return sql;
+		
 	}
 
 }
